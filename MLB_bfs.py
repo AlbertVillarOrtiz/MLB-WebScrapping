@@ -81,10 +81,39 @@ def getH2h(idMatch):
         for i in range(10):
             print(matchsMutual[i].text)
         print("------------------")
+
+def getOdds(idMatch):
+    print("2. INICIO EJECUCION ODDS MISMARCADORES\n")
+    url = "https://d.mismarcadores.com/x/feed/d_od_{}_es_1_eu".format(idMatch)
+    website_url = requests.get(url, headers={'X-Fsign': 'SW9D1eZo'}).text
+    soup = BeautifulSoup(website_url,"html.parser")
     
-#ids = getIdMatchs()
+    tableMoneyLine = soup.find("table", {"id": "odds_ml"})
+    trML = tableMoneyLine.find_all("tr", {"class": "odd"})
+    
+    for i in range(len(trML)):
+        print(trML[i].text)
+    print("------------------")
+    
+    tableOverUnder = soup.find_all("table", id=lambda x: x and x.startswith('odds_ou'))
+    for table in tableOverUnder:
+        trML = table.find_all("tr", {"class": "odd"})
+    
+        for i in range(len(trML)):
+            print(trML[i].text)
+    print("------------------")
+            
+    tableHandicap = soup.find("table", id=lambda x: x and x.startswith('odds_ah'))
+    trML = tableHandicap.find_all("tr", {"class": "odd"})
+    
+    for i in range(len(trML)):
+        print(trML[i].text)
+    print("------------------")
+    
+ids = getIdMatchs()
 ids = ["WURpHIWA"]
 
 for idMatch in ids:
     getClasification(idMatch)
     getH2h(idMatch)
+    getOdds(idMatch)
