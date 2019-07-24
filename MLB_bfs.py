@@ -8,6 +8,7 @@ Created on Sun Jul 21 18:41:55 2019
 from bs4 import BeautifulSoup
 import requests
 import re
+from match import Match
 
 def getIdMatchs():
     website_url = requests.get("https://www.mismarcadores.com/beisbol/usa/mlb/partidos/").text
@@ -38,53 +39,78 @@ def getIdTeams(idMatch):
     
     return soup[init+2:init+index-1].replace('\'','').split(',')
 
-def getClasification(idMatch):
+def normalizeClasificationData(data):
+    for i in range(len(data)+1):
+        result = data[i].split(":")
+        if len(result) > 0:
+            del data[i]
+            for j in range(len(result)):
+                data.insert(i, result[j])
+        data[i] = float(data[i])
+
+    return data
+
+def getClasification(match):
     print("1. INICIO EJECUCION RANKING MISMARCADORES\n")
     SITUATIONS = ['overall', 'home', 'away']
-    ids = getIdTeams(idMatch)
+    names = []
+    clasification = []
     
     for situation in SITUATIONS:
-        url = "https://d.mismarcadores.com/x/feed/ss_1_Uanezsbs_GMHpTqQb_table_{}?e={}&hp1={}&hp2={}".format(situation, idMatch, ids[0], ids[1])
+        url = "https://d.mismarcadores.com/x/feed/ss_1_Uanezsbs_GMHpTqQb_table_{}?e={}&hp1={}&hp2={}".format(situation, match.id, match.ids['local'], match.ids['away'])
         website_url = requests.get(url, headers={'X-Fsign': 'SW9D1eZo'}).text
         soup = BeautifulSoup(website_url,"html.parser")
 
         trClasi = soup.find_all("tr", {"class": "highlight"})
         for i in range(2):
-            print(trClasi[i].text)
-        print("------------------")
-        
-        
+            clasi = trClasi[i].get_text(separator="/").split("/")[0:7]
+            del clasi[1]
+            clasification.append(normalizeClasificationData(clasi))
+            names.append(clasification[i][1])
+    
+    match.setNamesMatch(names) 
+    match.setClasification(clasification[0:2], clasification[2:4], clasification[4:6])
+    
+    return match
 
-def getH2h(idMatch):
+def getH2h(match):
     print("2. INICIO EJECUCION H2H MISMARCADORES\n")
-    url = "https://d.mismarcadores.com/x/feed/d_hh_{}_es_1".format(idMatch)
+    url = "https://d.mismarcadores.com/x/feed/d_hh_{}_es_1".format(match.id)
     website_url = requests.get(url, headers={'X-Fsign': 'SW9D1eZo'}).text
     soup = BeautifulSoup(website_url,"html.parser")
+    h2h = []
     
     tableHome = soup.find_all("table", {"class": "h2h_home"})
     for table in tableHome:
+        mHome = []
         matchsHome = table.find_all("tr", {"class": "highlight"})
         for i in range(10):
-            print(matchsHome[i].text)
+            mHome.append(matchsHome[i].get_text(separator="/").split("/")[-4])
         print("------------------")
     
     tableAway = soup.find_all("table", {"class": "h2h_away"})
     for table in tableAway:
+        mAway = []
         matchsAway = table.find_all("tr", {"class": "highlight"})
         for i in range(10):
-            print(matchsAway[i].text)
+            mAway.append(matchsAway[i].get_text(separator="/").split("/")[-4])
         print("------------------")
     
     tableMutual = soup.find_all("table", {"class": "h2h_mutual"})
     for table in tableMutual:
+        mMutual = []
         matchsMutual = table.find_all("tr", {"class": "highlight"})
         for i in range(10):
-            print(matchsMutual[i].text)
+            mMutual.append(matchsMutual[i].get_text(separator="/").split("/")[-4])
         print("------------------")
+    
+    match.setH2hOverall()
+    match.setH2hLocal()
+    match.setH2hAway()
 
-def getOdds(idMatch):
+def getOdds(match):
     print("2. INICIO EJECUCION ODDS MISMARCADORES\n")
-    url = "https://d.mismarcadores.com/x/feed/d_od_{}_es_1_eu".format(idMatch)
+    url = "https://d.mismarcadores.com/x/feed/d_od_{}_es_1_eu".format(match.id)
     website_url = requests.get(url, headers={'X-Fsign': 'SW9D1eZo'}).text
     soup = BeautifulSoup(website_url,"html.parser")
     
@@ -92,7 +118,7 @@ def getOdds(idMatch):
     trML = tableMoneyLine.find_all("tr", {"class": "odd"})
     
     for i in range(len(trML)):
-        print(trML[i].text)
+        print(trML[i].get_text(separator="/").split("/"))
     print("------------------")
     
     tableOverUnder = soup.find_all("table", id=lambda x: x and x.startswith('odds_ou'))
@@ -100,20 +126,24 @@ def getOdds(idMatch):
         trML = table.find_all("tr", {"class": "odd"})
     
         for i in range(len(trML)):
-            print(trML[i].text)
+            print(trML[i].get_text(separator="/").split("/"))
     print("------------------")
             
     tableHandicap = soup.find("table", id=lambda x: x and x.startswith('odds_ah'))
     trML = tableHandicap.find_all("tr", {"class": "odd"})
     
     for i in range(len(trML)):
-        print(trML[i].text)
+        print(trML[i].get_text(separator="/").split("/"))
     print("------------------")
     
-ids = getIdMatchs()
-ids = ["WURpHIWA"]
+    
 
-for idMatch in ids:
-    getClasification(idMatch)
-    getH2h(idMatch)
-    getOdds(idMatch)
+def main():
+    ids = getIdMatchs()
+    ids = ["WURpHIWA"]
+    
+    for idMatch in ids:
+        match = Match(getIdTeams(idMatch), idMatch)
+        #match = getClasification(match)
+        match = getH2h(match)
+        #getOdds(match)
