@@ -159,7 +159,8 @@ def getOdds(match):
     oddsOU = {}
     oddsAH = {}
     odds = trML[0].get_text(separator="/").split("/")
-    odds.remove('\xa0')
+    if '\xa0' in odds: 
+        odds.remove('\xa0')
     oddsW = list(map(float, odds))
     
     tableOverUnder = soup.find_all("table", id=lambda x: x and x.startswith('odds_ou'))
@@ -298,7 +299,8 @@ def getLeagues(sport):
     return leagues
 
 def getSports():
-    return [["futbol", 1], ["baloncesto", 3], ["tenis", 2], ["beisbol",6]]
+#    return [["futbol", 1], ["baloncesto", 3], ["tenis", 2], ["beisbol",6]]
+    return [["beisbol",6]]
 
     
 #def main():
@@ -321,4 +323,3 @@ for sport in sportsIds:
         #    
         #    if winResult[1][0] > threshold:
         #        print(match.names['home'], " - " , match.names['away'], " -> ", winResult)
-        #    
