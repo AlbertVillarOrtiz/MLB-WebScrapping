@@ -13,18 +13,22 @@ import statistics
 from match import Match
 from probabilities import Probabilities
 
-def getIdMatchs():
-    website_url = requests.get("https://www.mismarcadores.com/beisbol/usa/mlb/partidos/").text
-    soup = BeautifulSoup(website_url,"html.parser")
-    
-    matchsTable = soup.find("div",{"id":"tournament-page-data-fixtures"}).string
-    indexes = [m.start() for m in re.finditer('AA÷', matchsTable)]
-    ids = []
-    for element in indexes:
-        test = matchsTable[element:element+12]
-        index = test.index("¬")
-        ids.append(matchsTable[element+3:element+index])
-    
+def getIdMatchs(sport, league):
+    try: 
+        url = "https://www.mismarcadores.com/{}/{}partidos/".format(sport, league)
+        website_url = requests.get(url).text
+        soup = BeautifulSoup(website_url,"html.parser")
+        
+        matchsTable = soup.find("div",{"id":"tournament-page-data-fixtures"}).string
+        indexes = [m.start() for m in re.finditer('AA÷', matchsTable)]
+        ids = []
+        for element in indexes:
+            test = matchsTable[element:element+12]
+            index = test.index("¬")
+            ids.append(matchsTable[element+3:element+index])
+    except:
+        ids = []
+        
     return ids
 
 def getIdTeams(idMatch):
@@ -73,23 +77,26 @@ def getClasification(match):
     SITUATIONS = ['overall', 'home', 'away']
     clasification = []
     
-    for situation in SITUATIONS:
-        url = "https://d.mismarcadores.com/x/feed/ss_1_Uanezsbs_GMHpTqQb_table_{}?e={}&hp1={}&hp2={}".format(situation, match.id, match.idsTeams['home'], match.idsTeams['away'])
-        website_url = requests.get(url, headers={'X-Fsign': 'SW9D1eZo'}).text
-        soup = BeautifulSoup(website_url,"html.parser")
-
-        trClasi = soup.find_all("tr", {"class": "highlight"})
-        for i in range(2):
-            clasi = trClasi[i].get_text(separator="/").split("/")[0:7]
-            length = len(clasification)
-            if clasi[1] == match.names['home'] and i%2 != 0:
-                del clasi[1]
-                clasification.insert(length-1, normalizeData(clasi))
-            else:
-                del clasi[1]
-                clasification.append(normalizeData(clasi))  
+    try:
+        for situation in SITUATIONS:
+            url = "https://d.mismarcadores.com/x/feed/ss_1_Uanezsbs_GMHpTqQb_table_{}?e={}&hp1={}&hp2={}".format(situation, match.id, match.idsTeams['home'], match.idsTeams['away'])
+            website_url = requests.get(url, headers={'X-Fsign': 'SW9D1eZo'}).text
+            soup = BeautifulSoup(website_url,"html.parser")
     
-    match.setClasification(clasification[0:2], clasification[2:4], clasification[4:6])
+            trClasi = soup.find_all("tr", {"class": "highlight"})
+            for i in range(2):
+                clasi = trClasi[i].get_text(separator="/").split("/")[0:7]
+                length = len(clasification)
+                if clasi[1] == match.names['home'] and i%2 != 0:
+                    del clasi[1]
+                    clasification.insert(length-1, normalizeData(clasi))
+                else:
+                    del clasi[1]
+                    clasification.append(normalizeData(clasi))  
+        
+        match.setClasification(clasification[0:2], clasification[2:4], clasification[4:6])
+    except:
+        print("NO CLASIFICATION")
     
     return match
 
@@ -275,18 +282,43 @@ def analyzeWin(prob):
     
     return result
 
+def getLeagues(sport):
+    url = "https://d.mismarcadores.com/x/feed/f_{}_0_2_es_1".format(sport[1])
+    website_url = requests.get(url, headers={'X-Fsign': 'SW9D1eZo'}).text
+    soup = BeautifulSoup(website_url,"html.parser")
+    leagues = []
+    
+    result = [m.start() for m in re.finditer(sport[0], soup.string)]
+    
+    for startIndex in result:
+        init = startIndex+len(sport[0])+1
+        path = soup.string[init:].split("¬")[0]
+        leagues.append(path)
+    
+    return leagues
+
+def getSports():
+    return [["futbol", 1], ["baloncesto", 3], ["tenis", 2], ["beisbol",6]]
+
+    
 #def main():
 threshold = 0.6
-ids = getIdMatchs()
-
 print("Threshold: ", threshold)
-for i in range(15):
-    idMatch = ids[i]
-    match = getData(idMatch)
-    probabilities = getProbabilities(match)
-    winResult = analyzeWin(probabilities)
-    
-    
-    if winResult[1][0] > threshold:
-        print(match.names['home'], " - " , match.names['away'], " -> ", winResult)
-    
+
+sportsIds = getSports()
+for sport in sportsIds:
+    print(sport)
+    leaguesIds = getLeagues(sport)
+    for league in leaguesIds:
+        print(league)
+        matchesIds = getIdMatchs(sport[0], league)
+        for match in matchesIds:
+            print(match)
+            match = getData(match)
+        #    probabilities = getProbabilities(match)
+        #    winResult = analyzeWin(probabilities)
+        #    
+        #    
+        #    if winResult[1][0] > threshold:
+        #        print(match.names['home'], " - " , match.names['away'], " -> ", winResult)
+        #    
