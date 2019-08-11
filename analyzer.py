@@ -9,7 +9,7 @@ import statistics
 class Analyzer():
     
     def __init__(self):
-        self.winner = []
+        self.win = []
     
     def isTimeToBetting(self, threshold):
         winner = self.winner[1][0] > threshold
@@ -17,19 +17,17 @@ class Analyzer():
         return winner
     
     def winner(self, prob):
-        winnerH = [prob.probWin['home'], prob.probClasiOverall['home'], 
-                   prob.probClasiHome['home'], prob.probH2hOverall['home'],
-                   prob.probH2hOverall['mutual']['home'], prob.probH2hHome['home'], 
-                   prob.probH2hHome['mutual']['home']]
-        winnerA = [prob.probWin['away'], prob.probClasiOverall['away'], 
-                   prob.probClasiAway['away'], prob.probH2hOverall['away'],
-                   prob.probH2hOverall['mutual']['away'], prob.probH2hAway['away'], 
-                   prob.probH2hHome['mutual']['away']]
+        winnerH = [prob.clasiOverall['home'], prob.clasiHome['home'], 
+                   prob.h2hOverall['home'], prob.h2hOverall['mutual']['home'], 
+                   prob.h2hHome['home'], prob.h2hHome['mutual']['home']]
+        winnerA = [prob.clasiOverall['away'], prob.clasiAway['away'], 
+                   prob.h2hOverall['away'],prob.h2hOverall['mutual']['away'], 
+                   prob.h2hAway['away'], prob.h2hHome['mutual']['away']]
         
-        resultH = [statistics.mean(winnerH[1:]), winnerH[0]]
-        resultA = [statistics.mean(winnerA[1:]), winnerA[0]]
+        resultH = [statistics.mean(winnerH), prob.win['home']]
+        resultA = [statistics.mean(winnerA), prob.win['away']]
         
         if resultH[0] > resultA[0]:
-            self.winner = ['home', resultH]
+            self.win = ['home', resultH]
         else:
-            self.winner = ['away', resultA]
+            self.win = ['away', resultA]

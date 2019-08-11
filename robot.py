@@ -13,14 +13,20 @@ class Robot():
     
     def __init__(self):
         self.threshold = 0.6
-        self.max_match_failed = 10
-        self.count_match_failed = 0
+        self.max_failed = 10
+        self.max_games = 25
+        self.count_failed = 0
+        self.count_games = 0
     
     def updateMatchFailed(self):
-        self.count_match_failed = self.count_match_failed + 1
+        self.count_failed = self.count_failed + 1
     
-    def initMatchFailed(self):
-        self.count_match_failed = 0
+    def updateGameByLeague(self):
+        self.count_games = self.count_games + 1
+    
+    def initCounters(self):
+        self.count_failed = 0
+        self.count_games = 0
         
     def getMatch(self, scrapper, id_match, league):
         match = Match()
@@ -56,21 +62,21 @@ class Robot():
             for league in leagues:
                 
                 id_matchs = scrapper.getIdsMatch(sport["name"], league["name"])
-                i = 0
-                self.initMatchFailed()
-                while self.count_match_failed < self.max_match_failed and i < len(id_matchs):
-                    print(sport["name"], league['name'], i)
-                    match = self.getMatch(scrapper, id_matchs[i], league)
+
+                self.initCounters()
+                while self.count_failed < self.max_failed and self.count_games < self.max_games and self.count_games < len(id_matchs):
+                    print(sport["name"], league['name'], self.count_games)
+                    match = self.getMatch(scrapper, id_matchs[self.count_games], league)
                     probabilities = self.getProbabilities(match)
                     if probabilities.isAllCorrect():
                         
                         analyzer = self.getAnalysis(probabilities)
-                        if analyzer.isTimeToBetting(self.threshold):
-                            print(match.names['home'], " - " , match.names['away'], " -> ", analyzer.winner)
+#                        if analyzer.isTimeToBetting(self.threshold):
+                        print(match.names['home'], " - " , match.names['away'], " -> ", analyzer.win)
                     else:
                         self.updateMatchFailed()
                     
-                    i = i + 1
+                    self.updateGameByLeague()
             
 
 

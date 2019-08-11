@@ -39,7 +39,23 @@ class Scrapper():
             sports.append({"name": sport_name, "id": sport_id})
         
         sports = [{"name": "beisbol", "id": 6}]
-#        sports = [["futbol", 1], ["baloncesto", 3], ["tenis", 2], ["beisbol",6]]
+#sports = [{'name': 'badminton', 'id': '21'}, {'name': 'baloncesto', 'id': '3'}, 
+#{'name': 'balonmano', 'id': '7'}, {'name': 'bandy', 'id': '10'}, 
+#{'name': 'beisbol', 'id': '6'}, {'name': 'boxeo', 'id': '16'}, 
+#{'name': 'carreras-de-caballos', 'id': '35'}, {'name': 'ciclismo', 'id': '34'}, 
+#{'name': 'cricket', 'id': '13'}, {'name': 'dardos', 'id': '14'}, 
+#{'name': 'deportes-de-invierno', 'id': '37'}, {'name': 'esports', 'id': '36'}, 
+#{'name': 'futbol', 'id': '1'}, {'name': 'futbol-americano', 'id': '5'}, 
+#{'name': 'futbol-australiano', 'id': '18'}, {'name': 'futbol-playa', 'id': '26'}, 
+#{'name': 'futbol-sala', 'id': '11'}, {'name': 'golf', 'id': '23'}, 
+#{'name': 'hockey', 'id': '4'}, {'name': 'hockey-hierba', 'id': '24'}, 
+#{'name': 'kabaddi', 'id': '42'}, {'name': 'mma', 'id': '28'}, 
+#{'name': 'motor', 'id': '31'}, {'name': 'netball', 'id': '29'}, 
+#{'name': 'pesapallo', 'id': '30'}, {'name': 'rugby', 'id': '8'}, 
+#{'name': 'rugby-league', 'id': '19'}, {'name': 'snooker', 'id': '15'}, 
+#{'name': 'tenis', 'id': '2'}, {'name': 'tenis-de-mesa', 'id': '25'}, 
+#{'name': 'unihockey', 'id': '9'}, {'name': 'voleibol', 'id': '12'}, 
+#{'name': 'voley-playa', 'id': '17'}, {'name': 'waterpolo', 'id': '22'}]
         
         return sports
     
@@ -128,18 +144,18 @@ class Scrapper():
         
         try:
             for situation in self.__situations:
-                print(situation, match.id, match.id_teams['home'], match.id_teams['away'])
+                
                 soup = self._soupClasification(situation, match.id, match.id_teams['home'], match.id_teams['away'], league)
-        
                 trClasi = soup.find_all("tr", {"class": "highlight"})
                 for i in range(2):
-                    clasi = trClasi[i].get_text(separator="/").split("/")[0:7]
+                    
+                    clasi = trClasi[i].get_text(separator="/").split("/")[1:8]
                     length = len(clasification)
-                    if clasi[1] == match.names['home'] and i%2 != 0:
-                        del clasi[1]
+                    if clasi[0] == match.names['home'] and i != 0:
+                        del clasi[0]
                         clasification.insert(length-1, util.normalizeData(clasi))
                     else:
-                        del clasi[1]
+                        del clasi[0]
                         clasification.append(util.normalizeData(clasi))  
             
             match.setClasification(clasification[0:2], clasification[2:4], clasification[4:6])

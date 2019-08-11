@@ -9,7 +9,7 @@ from utilities import countWins, formObjectToProbabilities
 class Probabilities:
     
     def __init__(self):
-        self.win = []
+        self.win = {"home": 0, "away": 0}
         self.ou = {}
         self.ah = {}
         self.clasiOverall = {}
@@ -59,8 +59,7 @@ class Probabilities:
             self._setOddProbabilities(win, ou, ah)
     
     def isAllCorrect(self):
-        win = len(self.win) != 0
         clasiO = len(self.clasiOverall) != 0
         h2hO = len(self.h2hOverall) != 0
         
-        return win and clasiO and h2hO
+        return clasiO and h2hO

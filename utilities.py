@@ -4,6 +4,8 @@ Created on Sat Aug 10 21:11:32 2019
 
 @author: AlbertVillarOrtiz
 """
+import numpy as np
+
 def formObjectToProbabilities(array):
     for key in array.keys():
         if isinstance(array[key], (list, tuple, np.ndarray)):
@@ -28,7 +30,7 @@ def normalizeData(data):
         if len(result) > 0:
             del data[i]
             for j in range(len(result)):
-                data.insert(i, result[j])
+                data.insert(i+j, result[j])
         data[i] = float(data[i])
 
     return data
