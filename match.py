@@ -6,11 +6,10 @@ Created on Tue Jul 23 12:26:44 2019
 """
 
 class Match:
-    league = "MLB"
     
-    def __init__(self, idsTeams, idMatch):
-        self.idsTeams = {"home": idsTeams[0], "away": idsTeams[1]}
-        self.id = idMatch
+    def __init__(self):
+        self.id = None
+        self.id_teams = {}
         self.names = {}
         self.h2hOverall = {}
         self.h2hHome = {}
@@ -21,6 +20,10 @@ class Match:
         self.clasOverall = {}
         self.clasHome = {}
         self.clasAway = {}
+        
+    def setInfoMatch(self, id_teams, id_match):
+        self.id_teams = {"home": id_teams[0], "away": id_teams[1]}
+        self.id = id_match
         
     def setNamesMatch(self, names):
         self.names = {"home": names[0], "away": names[1]}

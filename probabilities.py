@@ -4,26 +4,63 @@ Created on Mon Jul 29 11:05:44 2019
 
 @author: AlbertVillarOrtiz
 """
+from utilities import countWins, formObjectToProbabilities
 
 class Probabilities:
     
-    def __init__(self, probW, probOU, probAH):
-        self.probWin = probW
-        self.probOU = probOU
-        self.probAH = probAH
-        self.probClasiOverall = {}
-        self.probClasiHome = {}
-        self.probClasiAway = {}
-        self.probH2hOverall = {}
-        self.probH2hHome = {}
-        self.probH2hAway = {}
+    def __init__(self):
+        self.win = []
+        self.ou = {}
+        self.ah = {}
+        self.clasiOverall = {}
+        self.clasiHome = {}
+        self.clasiAway = {}
+        self.h2hOverall = {}
+        self.h2hHome = {}
+        self.h2hAway = {}
     
-    def setClasiProbabilities(self, overall, home, away):
-        self.probClasiOverall = overall
-        self.probClasiHome = home
-        self.probClasiAway = away
+    def _setOddProbabilities(self, win, ou, ah):
+        self.win = win
+        self.ou = ou
+        self.ah = ah
     
-    def setH2hProbabilities(self, overall, home, away):
-        self.probH2hOverall = overall
-        self.probH2hHome = home
-        self.probH2hAway = away
+    def _setClasiProbabilities(self, overall, home, away):
+        self.clasiOverall = overall
+        self.clasiHome = home
+        self.clasiAway = away
+    
+    def _setH2hProbabilities(self, overall, home, away):
+        self.h2hOverall = overall
+        self.h2hHome = home
+        self.h2hAway = away
+    
+    def calculateProbabilitiesH2h(self, match):
+        if len(match.h2hOverall) != 0:
+            overall = countWins(match.h2hOverall, match.names)
+            home = countWins(match.h2hHome, match.names)
+            away = countWins(match.h2hAway, match.names)
+            
+            self._setH2hProbabilities(overall, home, away)
+    
+    def calculateProbabilitiesClasi(self, match):
+        if len(match.clasOverall) != 0:
+            overall = {"home": match.clasOverall['home']['PCT'], "away": match.clasOverall['away']['PCT']}
+            home = {"home": match.clasHome['home']['PCT']}
+            away = {"away": match.clasAway['away']['PCT']}
+            
+            self._setClasiProbabilities(overall, home, away)
+    
+    def calculateProbabilitiesOdd(self, match):
+        if len(match.oddsW) != 0:
+            win = formObjectToProbabilities(match.oddsW)
+            ou = formObjectToProbabilities(match.oddsOU)
+            ah = formObjectToProbabilities(match.oddsAH)
+            
+            self._setOddProbabilities(win, ou, ah)
+    
+    def isAllCorrect(self):
+        win = len(self.win) != 0
+        clasiO = len(self.clasiOverall) != 0
+        h2hO = len(self.h2hOverall) != 0
+        
+        return win and clasiO and h2hO
