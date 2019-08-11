@@ -11,6 +11,12 @@ class Probabilities:
         self.probWin = probW
         self.probOU = probOU
         self.probAH = probAH
+        self.probClasiOverall = {}
+        self.probClasiHome = {}
+        self.probClasiAway = {}
+        self.probH2hOverall = {}
+        self.probH2hHome = {}
+        self.probH2hAway = {}
     
     def setClasiProbabilities(self, overall, home, away):
         self.probClasiOverall = overall

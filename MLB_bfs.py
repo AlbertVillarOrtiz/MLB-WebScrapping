@@ -63,15 +63,7 @@ def normalizeH2hData(data):
         result[0] = float(result[0])
         result[1] = float(result[1])
 
-    return result
-
-def getSize(array, default):
-    if len(array) > default:
-        result = default
-    else:
-        result = len(array)
-        
-    return result      
+    return result     
 
 def getClasification(match):
     SITUATIONS = ['overall', 'home', 'away']
@@ -97,8 +89,8 @@ def getClasification(match):
         match.setClasification(clasification[0:2], clasification[2:4], clasification[4:6])
     except:
         print("NO CLASIFICATION")
-    
-    return match
+    finally:
+        return match
 
 def getH2h(match):
     url = "https://d.mismarcadores.com/x/feed/d_hh_{}_es_1".format(match.id)
@@ -107,80 +99,87 @@ def getH2h(match):
     h2h = []
     names = []
     
-    tableHome = soup.find_all("table", {"class": "h2h_home"})
-    for table in tableHome:
-        mHome = []
-        matchsHome = table.find_all("tr", {"class": "highlight"})
-        for i in range(getSize(matchsHome, 10)):
-            h2hValues = matchsHome[i].get_text(separator="/").split("/")[-3:]
-            h2hValues.extend(normalizeH2hData([h2hValues[-1]]))
-            del h2hValues[2]
-            mHome.append(h2hValues)
-        h2h.append(mHome)
+    try:
+        tableHome = soup.find_all("table", {"class": "h2h_home"})
+        for table in tableHome:
+            mHome = []
+            matchsHome = table.find_all("tr", {"class": "highlight"})
+            for i in range(getSize(matchsHome, 10)):
+                h2hValues = matchsHome[i].get_text(separator="/").split("/")[-3:]
+                h2hValues.extend(normalizeH2hData([h2hValues[-1]]))
+                del h2hValues[2]
+                mHome.append(h2hValues)
+            h2h.append(mHome)
+            
+        names.append(h2h[-1][-1][0])
+        tableAway = soup.find_all("table", {"class": "h2h_away"})
+        for table in tableAway:
+            mAway = []
+            matchsAway = table.find_all("tr", {"class": "highlight"})
+            for i in range(getSize(matchsAway, 10)):
+                h2hValues = matchsAway[i].get_text(separator="/").split("/")[-3:]
+                h2hValues.extend(normalizeH2hData([h2hValues[-1]]))
+                del h2hValues[2]
+                mAway.append(h2hValues)
+            h2h.append(mAway)
+            
+        names.append(h2h[-1][-1][1])
+        tableMutual = soup.find_all("table", {"class": "h2h_mutual"})
+        for table in tableMutual:
+            mMutual = []
+            matchsMutual = table.find_all("tr", {"class": "highlight"})
+            for i in range(getSize(matchsMutual, 10)):
+                h2hValues = matchsMutual[i].get_text(separator="/").split("/")[-3:]
+                h2hValues.extend(normalizeH2hData([h2hValues[-1]]))
+                del h2hValues[2]
+                mMutual.append(h2hValues)
+            h2h.append(mMutual)
         
-    names.append(h2h[-1][-1][0])
-    tableAway = soup.find_all("table", {"class": "h2h_away"})
-    for table in tableAway:
-        mAway = []
-        matchsAway = table.find_all("tr", {"class": "highlight"})
-        for i in range(getSize(matchsAway, 10)):
-            h2hValues = matchsAway[i].get_text(separator="/").split("/")[-3:]
-            h2hValues.extend(normalizeH2hData([h2hValues[-1]]))
-            del h2hValues[2]
-            mAway.append(h2hValues)
-        h2h.append(mAway)
-        
-    names.append(h2h[-1][-1][1])
-    tableMutual = soup.find_all("table", {"class": "h2h_mutual"})
-    for table in tableMutual:
-        mMutual = []
-        matchsMutual = table.find_all("tr", {"class": "highlight"})
-        for i in range(getSize(matchsMutual, 10)):
-            h2hValues = matchsMutual[i].get_text(separator="/").split("/")[-3:]
-            h2hValues.extend(normalizeH2hData([h2hValues[-1]]))
-            del h2hValues[2]
-            mMutual.append(h2hValues)
-        h2h.append(mMutual)
     
-    match.setH2h(h2h)
-    match.setNamesMatch(names)
-    
-    return match
+        match.setH2h(h2h)
+        match.setNamesMatch(names)
+    except:
+        print("NO H2H")
+    finally:
+        return match
 
 def getOdds(match):
     url = "https://d.mismarcadores.com/x/feed/d_od_{}_es_1_eu".format(match.id)
     website_url = requests.get(url, headers={'X-Fsign': 'SW9D1eZo'}).text
     soup = BeautifulSoup(website_url,"html.parser")
-    
-    tableMoneyLine = soup.find("table", {"id": "odds_ml"})
-    trML = tableMoneyLine.find_all("tr", {"class": "odd"})
-    
     oddsW = []
     oddsOU = {}
     oddsAH = {}
-    odds = trML[0].get_text(separator="/").split("/")
-    if '\xa0' in odds: 
-        odds.remove('\xa0')
-    oddsW = list(map(float, odds))
     
-    tableOverUnder = soup.find_all("table", id=lambda x: x and x.startswith('odds_ou'))
-    for table in tableOverUnder:
-        trML = table.find_all("tr", {"class": "odd"})
+    try:
+        tableMoneyLine = soup.find("table", {"id": "odds_ml"})
+        trML = tableMoneyLine.find_all("tr", {"class": "odd"})
     
+        odds = trML[0].get_text(separator="/").split("/")
+        if '\xa0' in odds: 
+            odds.remove('\xa0')
+        oddsW = list(map(float, odds))
+        
+        tableOverUnder = soup.find_all("table", id=lambda x: x and x.startswith('odds_ou'))
+        for table in tableOverUnder:
+            trML = table.find_all("tr", {"class": "odd"})
+        
+            for i in range(len(trML)):
+                overUnder = trML[i].get_text(separator="/").split("/")
+                oddsOU[overUnder[0]] = list(map(float, overUnder[1:3]))
+                
+        tableHandicap = soup.find("table", id=lambda x: x and x.startswith('odds_ah'))
+        trML = tableHandicap.find_all("tr", {"class": "odd"})
+        
         for i in range(len(trML)):
-            overUnder = trML[i].get_text(separator="/").split("/")
-            oddsOU[overUnder[0]] = list(map(float, overUnder[1:3]))
-            
-    tableHandicap = soup.find("table", id=lambda x: x and x.startswith('odds_ah'))
-    trML = tableHandicap.find_all("tr", {"class": "odd"})
+            asianHandicap = trML[i].get_text(separator="/").split("/")
+            oddsAH[asianHandicap[0]] = list(map(float, asianHandicap[1:3]))
     
-    for i in range(len(trML)):
-        asianHandicap = trML[i].get_text(separator="/").split("/")
-        oddsAH[asianHandicap[0]] = list(map(float, asianHandicap[1:3]))
-    
-    match.setOdds(oddsW, oddsOU, oddsAH)
-    
-    return match
+        match.setOdds(oddsW, oddsOU, oddsAH)
+    except:
+        print("NO ODDS")
+    finally:
+        return match
 
 def getData(idMatch):
     match = Match(getIdTeams(idMatch), idMatch)
@@ -190,30 +189,26 @@ def getData(idMatch):
     
     return match
 
-def formObjectToProbabilities(array):
-    for key in array.keys():
-        if isinstance(array[key], (list, tuple, np.ndarray)):
-            for i in range(len(array[key])):
-                array[key][i] = 1/array[key][i]
-        else:
-            array[key] = 1/array[key]
-    
-    return array
+
     
 def setProbabilitiesOdds(match):
-    probW = formObjectToProbabilities(match.oddsW)
-    probOU = formObjectToProbabilities(match.oddsOU)
-    probAH = formObjectToProbabilities(match.oddsAH)
-    
-    return Probabilities(probW, probOU, probAH)
+    if len(match.oddsW) != 0:
+        probW = formObjectToProbabilities(match.oddsW)
+        probOU = formObjectToProbabilities(match.oddsOU)
+        probAH = formObjectToProbabilities(match.oddsAH)
+        
+        return Probabilities(probW, probOU, probAH)
+    else:
+        return Probabilities({}, {}, {})
 
 def setProbabilitiesClasi(match, prob):
-    overall = {"home": match.clasOverall['home']['PCT'], "away": match.clasOverall['away']['PCT']}
-    home = {"home": match.clasHome['home']['PCT']}
-    away = {"away": match.clasAway['away']['PCT']}
-    
-    prob.setClasiProbabilities(overall, home, away)
-    
+    if len(match.clasOverall) != 0:
+        overall = {"home": match.clasOverall['home']['PCT'], "away": match.clasOverall['away']['PCT']}
+        home = {"home": match.clasHome['home']['PCT']}
+        away = {"away": match.clasAway['away']['PCT']}
+        
+        prob.setClasiProbabilities(overall, home, away)
+
     return prob
 
 def countWins(array, names):
@@ -243,16 +238,21 @@ def countWins(array, names):
         elif key == "away":
             probH2h['away'] = countAway / size
         elif key == "mutual":
-            probH2h['mutual'] = {'home': countHome / size, 'away': countAway / size}
+            if size == 0:
+                probH2h['mutual'] = {"home": 0 , "away": 0}
+            else:
+                probH2h['mutual'] = {"home": countHome / size , "away": countAway / size}
+                
         
     return probH2h
 
 def setProbabilitiesH2h(match, prob):
-    overall = countWins(match.h2hOverall, match.names)
-    home = countWins(match.h2hHome, match.names)
-    away = countWins(match.h2hAway, match.names)
-    
-    prob.setH2hProbabilities(overall, home, away)
+    if len(match.h2hOverall) != 0:
+        overall = countWins(match.h2hOverall, match.names)
+        home = countWins(match.h2hHome, match.names)
+        away = countWins(match.h2hAway, match.names)
+        
+        prob.setH2hProbabilities(overall, home, away)
     
     return prob
 
@@ -302,9 +302,13 @@ def getSports():
 #    return [["futbol", 1], ["baloncesto", 3], ["tenis", 2], ["beisbol",6]]
     return [["beisbol",6]]
 
+def isProbabilitiesCorrect(probabilities):
+    return len(probabilities.probWin) != 0 and len(probabilities.probClasiOverall) != 0 and len(probabilities.probH2hOverall) != 0
+
     
 #def main():
 threshold = 0.6
+max_match_failed = 10
 print("Threshold: ", threshold)
 
 sportsIds = getSports()
@@ -314,12 +318,19 @@ for sport in sportsIds:
     for league in leaguesIds:
         print(league)
         matchesIds = getIdMatchs(sport[0], league)
-        for match in matchesIds:
-            print(match)
-            match = getData(match)
-        #    probabilities = getProbabilities(match)
-        #    winResult = analyzeWin(probabilities)
-        #    
-        #    
-        #    if winResult[1][0] > threshold:
-        #        print(match.names['home'], " - " , match.names['away'], " -> ", winResult)
+        count_match_failed = 0
+        i = 0
+        while count_match_failed < max_match_failed and i < len(matchesIds):
+            print(matchesIds[i])
+            matchesIds[i] = getData(matchesIds[i])
+            probabilities = getProbabilities(matchesIds[i])
+            if isProbabilitiesCorrect(probabilities):
+                winResult = analyzeWin(probabilities)
+                
+                if winResult[1][0] > threshold:
+                    print(matchesIds[i].names['home'], " - " , matchesIds[i].names['away'], " -> ", winResult)
+            else:
+                count_match_failed = count_match_failed + 1
+            
+            i = i + 1
+            

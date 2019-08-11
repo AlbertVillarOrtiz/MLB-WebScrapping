@@ -11,6 +11,16 @@ class Match:
     def __init__(self, idsTeams, idMatch):
         self.idsTeams = {"home": idsTeams[0], "away": idsTeams[1]}
         self.id = idMatch
+        self.names = {}
+        self.h2hOverall = {}
+        self.h2hHome = {}
+        self.h2hAway = {}
+        self.oddsW = {}
+        self.oddsOU = {}
+        self.oddsAH = {}
+        self.clasOverall = {}
+        self.clasHome = {}
+        self.clasAway = {}
         
     def setNamesMatch(self, names):
         self.names = {"home": names[0], "away": names[1]}
