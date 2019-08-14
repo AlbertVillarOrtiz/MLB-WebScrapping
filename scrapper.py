@@ -13,12 +13,14 @@ class Scrapper():
 
     def __init__(self):
         self.__url_sport = "https://www.mismarcadores.com/"
+        self.__url_country_leagues = "https://www.mismarcadores.com/{}"
         self.__url_league = "https://d.mismarcadores.com/x/feed/f_{}_0_2_es_1"
         self.__url_match = "https://www.mismarcadores.com/{}/{}partidos/"
         self.__url_team = "https://www.mismarcadores.com/partido/{}/#h2h;overall"
         self.__url_clasification = "https://d.mismarcadores.com/x/feed/ss_1_{}_{}_table_{}?e={}&hp1={}&hp2={}"
         self.__url_h2h = "https://d.mismarcadores.com/x/feed/d_hh_{}_es_1"
         self.__url_odd = "https://d.mismarcadores.com/x/feed/d_od_{}_es_1_eu"
+        self.__url__historic = "https://www.mismarcadores.com/{}/{}/{}-{}/resultados/"
         self.__header = {"X-Fsign": "SW9D1eZo"}
         self.__situations = ['overall', 'home', 'away']
     
@@ -261,3 +263,52 @@ class Scrapper():
             print("NO ODDS")
         finally:
             return match
+    
+    def getAllLeaguesByCountry(self, sport):
+        url = self.__url_country_leagues.format(sport)
+        website_url = requests.get(url, headers=self.__header).text
+        soup = BeautifulSoup(website_url,"html.parser")
+
+        leagues = {}
+        countries = soup.find("ul",{"class":"tournament-menu"})
+        countries = countries.find_all("li")
+        
+        for li in countries:
+            
+            a = li.find("a")
+            if a != None:
+                
+                href = a.get("href")
+                if href != "#":
+                
+                    split = href.split("/")
+                    del split[0] 
+                    del split[len(split)-1]
+                    if len(split) == 2:
+                        leagues[split[1]] = []
+                    elif len(split) == 3:
+                        leagues[split[1]].append(split[2])
+        
+        return leagues
+    
+    def getHistoric(self):
+        url = self.__url__historic.format("beisbol", "usa", "mlb", "2018")
+        website_url = requests.get(url, headers=self.__header).text
+        soup = BeautifulSoup(website_url,"html.parser")
+        
+        matchsTable = soup.find("div",{"class":"leagues--static"}).string
+        indexes = [m.start() for m in re.finditer('AA÷', matchsTable)]
+        ids = []
+        for element in indexes:
+            test = matchsTable[element:element+12]
+            index = test.index("¬")
+            ids.append(matchsTable[element+3:element+index])
+        
+        print(ids)
+        
+scrapper = Scrapper()
+scrapper.getHistoric()
+            
+            
+        
+        
