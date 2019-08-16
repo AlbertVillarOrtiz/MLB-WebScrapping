@@ -5,6 +5,7 @@ Created on Sat Aug 10 21:11:32 2019
 @author: AlbertVillarOrtiz
 """
 import numpy as np
+import statistics
 
 def formObjectToProbabilities(array):
     for key in array.keys():
@@ -76,3 +77,11 @@ def countWins(array, names):
                 probH2h['mutual'] = {"home": countHome / size , "away": countAway / size}
         
     return probH2h
+
+def countTotalsMean(array):
+    total = []
+    for match in array:
+        total.append(sum(match[3:5]))
+    
+    return statistics.mean(total)
+        

@@ -21,6 +21,7 @@ class Scrapper():
         self.__url_h2h = "https://d.mismarcadores.com/x/feed/d_hh_{}_es_1"
         self.__url_odd = "https://d.mismarcadores.com/x/feed/d_od_{}_es_1_eu"
         self.__url__historic = "https://www.mismarcadores.com/{}/{}/{}-{}/resultados/"
+        self.__url_dataset = "https://d.mismarcadores.com/x/feed/tr_{}_155_{}_2_es_1"
         self.__header = {"X-Fsign": "SW9D1eZo"}
         self.__situations = ['overall', 'home', 'away']
     
@@ -69,6 +70,16 @@ class Scrapper():
         return soup
     
     def getLeague(self, sport):
+#        [{'name': 'austria/abl/', 'id1': 'GfH6hHa2', 'id2': 'lrCOugY0'}, 
+#         {'name': 'corea-del-sur/kbo/', 'id1': 'vZqbvILr', 'id2': 'l8ZGxjF0'}, 
+#         {'name': 'cuba/serie-nacional/', 'id1': 'OfkhJ7gb', 'id2': 'nm9ptWfF'}, 
+#         {'name': 'usa/mlb/', 'id1': 'Uanezsbs', 'id2': 'GMHpTqQb'}, 
+#         {'name': 'usa/il/', 'id1': '8lIihYT1', 'id2': 'fqVtfr0m'}, 
+#         {'name': 'finlandia/sm-sarja/', 'id1': '6yUeY3OM', 'id2': 'joPvlB5q'}, 
+#         {'name': 'japon/npb/', 'id1': 'UgmVTyTc', 'id2': 'GdhtAJS9'}, 
+#         {'name': 'mexico/lmb/', 'id1': 'IkMrWow1', 'id2': 'pEXnmlN7'}, 
+#         {'name': 'suecia/elitserien/', 'id1': 'IwYlzJP3', 'id2': 'dAj4ZaPT'}, 
+#         {'name': 'taiwan/cpbl/', 'id1': 'Gl8Vr72k', 'id2': '6o1uhhS1'}]
         soup = self._soupLeague(sport["id"])
         leagues = []
         leagues_index = [s.start() for s in re.finditer(sport["name"], soup.string)]
@@ -86,7 +97,8 @@ class Scrapper():
             
             leagues.append({"name": path, "id1": id1, "id2": id2})
         
-        return leagues
+#        return leagues
+        return [{'name': 'usa/mlb/', 'id1': 'Uanezsbs', 'id2': 'GMHpTqQb'}]
     
     def _soupIdsMatch(self, sport, league):
         url = self.__url_match.format(sport, league)
@@ -146,11 +158,10 @@ class Scrapper():
         
         try:
             for situation in self.__situations:
-                
                 soup = self._soupClasification(situation, match.id, match.id_teams['home'], match.id_teams['away'], league)
+                
                 trClasi = soup.find_all("tr", {"class": "highlight"})
                 for i in range(2):
-                    
                     clasi = trClasi[i].get_text(separator="/").split("/")[1:8]
                     length = len(clasification)
                     if clasi[0] == match.names['home'] and i != 0:
@@ -213,8 +224,8 @@ class Scrapper():
                     del h2hValues[2]
                     mMutual.append(h2hValues)
                 h2h.append(mMutual)
-            
-        
+            s
+            print(h2h)
             match.setH2h(h2h)
             match.setNamesMatch(names)
         except:
@@ -265,16 +276,15 @@ class Scrapper():
             return match
     
     def getAllLeaguesByCountry(self, sport):
-        url = self.__url_country_leagues.format(sport)
+        url = self.__url_country_leagues.format(sport["name"])
         website_url = requests.get(url, headers=self.__header).text
         soup = BeautifulSoup(website_url,"html.parser")
-
-        leagues = {}
+        leagues = {sport["name"]: {}}
         countries = soup.find("ul",{"class":"tournament-menu"})
         countries = countries.find_all("li")
         
         for li in countries:
-            
+            mt = li.get("data-mt")
             a = li.find("a")
             if a != None:
                 
@@ -284,31 +294,33 @@ class Scrapper():
                     split = href.split("/")
                     del split[0] 
                     del split[len(split)-1]
-                    if len(split) == 2:
-                        leagues[split[1]] = []
-                    elif len(split) == 3:
-                        leagues[split[1]].append(split[2])
-        
+                    if len(split) == 3:
+                        leagues[sport["name"]][split[2]] = {"path": href, "data-mt": mt}
+        print(leagues)
         return leagues
     
-    def getHistoric(self):
-        url = self.__url__historic.format("beisbol", "usa", "mlb", "2018")
-        website_url = requests.get(url, headers=self.__header).text
-        soup = BeautifulSoup(website_url,"html.parser")
-        
-        matchsTable = soup.find("div",{"class":"leagues--static"}).string
-        indexes = [m.start() for m in re.finditer('AA÷', matchsTable)]
-        ids = []
-        for element in indexes:
-            test = matchsTable[element:element+12]
-            index = test.index("¬")
-            ids.append(matchsTable[element+3:element+index])
-        
-        print(ids)
-        
-scrapper = Scrapper()
-scrapper.getHistoric()
-            
-            
-        
-        
+    def getHistoric(self, league):
+        historic = {}
+        try:
+            for i in range(50):
+                url = self.__url_dataset.format(league["data-mt"], str(i))
+                website_url = requests.get(url, headers=self.__header).text
+                soup = BeautifulSoup(website_url,"html.parser")
+                print("PAGINA: ", i)
+
+                matchs = soup.string.split("AA÷")
+                for match in matchs[1:]:
+                    index_id_match = match.index("¬")
+                    index_home_result = match.index("AG÷")
+                    index_away_result = match.index("AH÷")
+                    
+                    id_match = match[:index_id_match]
+                    home_result = match[index_home_result + 3:index_home_result + 4]
+                    away_result = match[index_away_result + 3:index_away_result + 4]
+                    
+                    historic[id_match] = {"home": home_result, "away": away_result}
+                
+        except:
+            print("FINAL DE RESULTADOS: ", i)
+        finally:
+            print(historic)        

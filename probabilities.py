@@ -4,7 +4,7 @@ Created on Mon Jul 29 11:05:44 2019
 
 @author: AlbertVillarOrtiz
 """
-from utilities import countWins, formObjectToProbabilities
+from utilities import countWins, formObjectToProbabilities, countTotalsMean
 
 class Probabilities:
     
@@ -24,31 +24,62 @@ class Probabilities:
         self.ou = ou
         self.ah = ah
     
-    def _setClasiProbabilities(self, overall, home, away):
-        self.clasiOverall = overall
-        self.clasiHome = home
-        self.clasiAway = away
+    def _setClasiProbabilities(self, clasification):
+        self.clasiOverall = clasification["overall"]
+        self.clasiHome = clasification["home"]
+        self.clasiAway = clasification["away"]
     
     def _setH2hProbabilities(self, overall, home, away):
-        self.h2hOverall = overall
-        self.h2hHome = home
-        self.h2hAway = away
+        self.h2hOverall = {"win": overall[0], "totals_mean": overall[1]}
+        self.h2hHome = {"win": home[0], "totals_mean": home[1]}
+        self.h2hAway = {"win": away[0], "totals_mean": away[1]}
     
     def calculateProbabilitiesH2h(self, match):
         if len(match.h2hOverall) != 0:
-            overall = countWins(match.h2hOverall, match.names)
-            home = countWins(match.h2hHome, match.names)
-            away = countWins(match.h2hAway, match.names)
+            overall_wins = countWins(match.h2hOverall, match.names)
+            home_wins = countWins(match.h2hHome, match.names)
+            away_wins = countWins(match.h2hAway, match.names)
+            
+            overall_total = countTotalsMean(match.h2hOverall)
+            home_total = countTotalsMean(match.h2hHome)
+            away_total = countTotalsMean(match.h2hAway)
+            
+            overall = [overall_wins, overall_total]
+            home = [home_wins, home_total]
+            away = [away_wins, away_total]
             
             self._setH2hProbabilities(overall, home, away)
     
     def calculateProbabilitiesClasi(self, match):
         if len(match.clasOverall) != 0:
-            overall = {"home": match.clasOverall['home']['PCT'], "away": match.clasOverall['away']['PCT']}
-            home = {"home": match.clasHome['home']['PCT']}
-            away = {"away": match.clasAway['away']['PCT']}
+            clasification = {
+                    "win": {
+                            "overall": {
+                                "home": match.clasOverall['home']['PCT'], 
+                                "away": match.clasOverall['away']['PCT']
+                            },
+                            "home": {
+                                "home": match.clasHome['home']['PCT']
+                            },
+                            "away": {
+                                "away": match.clasAway['away']['PCT']
+                            }
+                    },
+                    "totals_mean": {
+                            "overall": {
+                                "home": (match.clasOverall['home']['PF'] + match.clasOverall['home']['PA']) / match.clasOverall['home']['GP'], 
+                                "away": (match.clasOverall['away']['PF'] + match.clasOverall['away']['PA']) / match.clasOverall['away']['GP']
+                            },
+                            "home": {
+                                "home": (match.clasHome['home']['PF'] + match.clasHome['home']['PA']) / match.clasHome['home']['GP']
+                            },
+                            "away": {
+                                "away": (match.clasAway['away']['PF'] + match.clasAway['away']['PA']) / match.clasAway['away']['GP']
+                            }
+                    },
+            }
             
-            self._setClasiProbabilities(overall, home, away)
+            self._setClasiProbabilities(clasification)
     
     def calculateProbabilitiesOdd(self, match):
         if len(match.oddsW) != 0:
