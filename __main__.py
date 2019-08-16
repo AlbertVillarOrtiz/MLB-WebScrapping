@@ -12,4 +12,4 @@ if __name__ == '__main__':
     historical = Historical()
     
 #    robot.run()
-    historical.runIndexSports()
+    historical.runHistorical()

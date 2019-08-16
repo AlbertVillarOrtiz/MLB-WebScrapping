@@ -20,8 +20,7 @@ class Scrapper():
         self.__url_clasification = "https://d.mismarcadores.com/x/feed/ss_1_{}_{}_table_{}?e={}&hp1={}&hp2={}"
         self.__url_h2h = "https://d.mismarcadores.com/x/feed/d_hh_{}_es_1"
         self.__url_odd = "https://d.mismarcadores.com/x/feed/d_od_{}_es_1_eu"
-        self.__url__historic = "https://www.mismarcadores.com/{}/{}/{}-{}/resultados/"
-        self.__url_dataset = "https://d.mismarcadores.com/x/feed/tr_{}_155_{}_2_es_1"
+        self.__url_historical = "https://d.mismarcadores.com/x/feed/tr_{}_155_{}_2_es_1"
         self.__header = {"X-Fsign": "SW9D1eZo"}
         self.__situations = ['overall', 'home', 'away']
     
@@ -296,17 +295,16 @@ class Scrapper():
                     del split[len(split)-1]
                     if len(split) == 3:
                         leagues[sport["name"]][split[2]] = {"path": href, "data-mt": mt}
-        print(leagues)
         return leagues
     
-    def getHistoric(self, league):
-        historic = {}
+    def getHistorical(self, league):
+        historical = {}
         try:
             for i in range(50):
-                url = self.__url_dataset.format(league["data-mt"], str(i))
+                print("PAGE: ", i)
+                url = self.__url_historical.format(league["data-mt"], str(i))
                 website_url = requests.get(url, headers=self.__header).text
                 soup = BeautifulSoup(website_url,"html.parser")
-                print("PAGINA: ", i)
 
                 matchs = soup.string.split("AA÷")
                 for match in matchs[1:]:
@@ -318,9 +316,9 @@ class Scrapper():
                     home_result = match[index_home_result + 3:index_home_result + 4]
                     away_result = match[index_away_result + 3:index_away_result + 4]
                     
-                    historic[id_match] = {"home": home_result, "away": away_result}
+                    historical[id_match] = {"home": home_result, "away": away_result}
                 
         except:
             print("FINAL DE RESULTADOS: ", i)
-        finally:
-            print(historic)        
+        finally: 
+            return historical

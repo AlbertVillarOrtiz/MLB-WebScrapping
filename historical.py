@@ -23,25 +23,25 @@ class Historical():
             
         return data
     
-    def writeHistorical(self):
-        json.dump(self._historical, open('historical.json', 'w'))
+    def _writeHistorical(self):
+        json.dump(self._historical, open('historical.json', 'w'), sort_keys=True, indent=4)
     
     def _writeIndexSports(self):
-        json.dump(self._index_sports, open('index_sports.json', 'w'))
+        json.dump(self._index_sports, open('index_sports.json', 'w'), sort_keys=True, indent=4)
         
-    def defineHistorical(self, sport, league, league_historical):
-        self._historical[sport][league] = league_historical
+    def _defineHistorical(self, league_historical):
+        self._historical = league_historical
     
-    def _defineIndexSports(self, sport, leagues):
-        self._index_sports[sport] = leagues
+    def _defineIndexSports(self, leagues):
+        self._index_sports = leagues
     
 # -----------------------------------------------------------------------------
     def runIndexSports(self):
         scrapper = Scrapper()
         sports = scrapper.getSport()
         for sport in sports:
-            leagues = scrapper.getAllLeaguesByCountry(sport)
-            self._defineIndexSports(sport["name"], leagues)
+            leagues_by_sport = scrapper.getAllLeaguesByCountry(sport)
+            self._defineIndexSports(leagues_by_sport)
         
         self._writeIndexSports()
         
@@ -50,11 +50,9 @@ class Historical():
         scrapper = Scrapper()
         
         for sport in index_sports.keys():
-            for league in index_sports[sport].keys():
-                index_sports[sport][league]["matchs"] = scrapper.getHistoric(index_sports[sport][league])
-                historic = Historical()
-                historic.defineLeague(sport["name"], league, index_sports[sport][league])
+            league = "mlb"
+#            for league in index_sports[sport].keys():
+            index_sports[sport][league]["matchs"] = scrapper.getHistorical(index_sports[sport][league])
+            self._defineHistorical(index_sports)
             
-            historic.writeHistorical()
-                
-                
+            self._writeHistorical()
