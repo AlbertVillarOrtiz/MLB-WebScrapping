@@ -8,6 +8,7 @@ from match import Match
 from probabilities import Probabilities
 from analyzer import Analyzer
 from scrapper import Scrapper
+from historical import Historical
 
 class Robot():
     
@@ -68,6 +69,27 @@ class Robot():
                         analyzer = self.getAnalysis(probabilities)
                         analyzer.isTimeToBetting(self.threshold, match)
                     self._updateCountGames()
+    
+    def runHistorical(self):
+        historical = Historical()
+        scrapper = Scrapper()
+        index_sports = historical.historical
+        for sport in index_sports.keys():                
+            id_matchs_by_year = index_sports[sport]["mlb"]["matchs"]
+            league =  {'name': 'usa/mlb/', 'id1': 'Uanezsbs', 'id2': 'GMHpTqQb'}
             
+            for year in ["2018"]:
+                i = 0
+                for id_match in id_matchs_by_year[year].keys():
+                    print(sport, "mlb", year, id_match, i, len(id_matchs_by_year[year].keys()))
+                    match = self.getMatch(scrapper, id_match, league)
+                    probabilities = self.getProbabilities(match)
+                    print("IS Probability: ", probabilities.isAllCorrect())
+                    if probabilities.isAllCorrect():
+                        print("INIT ANALYZER")
+                        analyzer = self.getAnalysis(probabilities)
+                        print(analyzer.winner)
+                        analyzer.isTimeToBettingHistorical(self.threshold, sport, league["name"], year, id_matchs_by_year[year][id_match])
+                    i = i + 1
 
 

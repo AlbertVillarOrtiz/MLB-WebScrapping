@@ -12,9 +12,7 @@ class Probabilities:
         self.win = {"home": 0, "away": 0}
         self.ou = {}
         self.ah = {}
-        self.clasiOverall = {}
-        self.clasiHome = {}
-        self.clasiAway = {}
+        self.clasification = {}
         self.h2hOverall = {}
         self.h2hHome = {}
         self.h2hAway = {}
@@ -25,9 +23,7 @@ class Probabilities:
         self.ah = ah
     
     def _setClasiProbabilities(self, clasification):
-        self.clasiOverall = clasification["overall"]
-        self.clasiHome = clasification["home"]
-        self.clasiAway = clasification["away"]
+        self.clasification = clasification
     
     def _setH2hProbabilities(self, overall, home, away):
         self.h2hOverall = {"win": overall[0], "totals_mean": overall[1]}
@@ -40,9 +36,12 @@ class Probabilities:
             home_wins = countWins(match.h2hHome, match.names)
             away_wins = countWins(match.h2hAway, match.names)
             
-            overall_total = countTotalsMean(match.h2hOverall)
-            home_total = countTotalsMean(match.h2hHome)
-            away_total = countTotalsMean(match.h2hAway)
+#            overall_total = countTotalsMean(match.h2hOverall)
+#            home_total = countTotalsMean(match.h2hHome)
+#            away_total = countTotalsMean(match.h2hAway)
+            overall_total = 0
+            home_total = 0
+            away_total = 0
             
             overall = [overall_wins, overall_total]
             home = [home_wins, home_total]
@@ -90,7 +89,7 @@ class Probabilities:
             self._setOddProbabilities(win, ou, ah)
     
     def isAllCorrect(self):
-        clasiO = len(self.clasiOverall) != 0
+        clasiO = len(self.clasification) != 0
         h2hO = len(self.h2hOverall) != 0
         
         return clasiO and h2hO

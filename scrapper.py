@@ -20,7 +20,8 @@ class Scrapper():
         self.__url_clasification = "https://d.mismarcadores.com/x/feed/ss_1_{}_{}_table_{}?e={}&hp1={}&hp2={}"
         self.__url_h2h = "https://d.mismarcadores.com/x/feed/d_hh_{}_es_1"
         self.__url_odd = "https://d.mismarcadores.com/x/feed/d_od_{}_es_1_eu"
-        self.__url_historical = "https://d.mismarcadores.com/x/feed/tr_{}_155_{}_2_es_1"
+        self.__url_id_year_historical = "https://www.mismarcadores.com/{}-{}/resultados/"
+        self.__url_historical = "https://d.mismarcadores.com/x/feed/tr_{}_{}_{}_2_es_1"
         self.__header = {"X-Fsign": "SW9D1eZo"}
         self.__situations = ['overall', 'home', 'away']
     
@@ -158,18 +159,17 @@ class Scrapper():
         try:
             for situation in self.__situations:
                 soup = self._soupClasification(situation, match.id, match.id_teams['home'], match.id_teams['away'], league)
-                
                 trClasi = soup.find_all("tr", {"class": "highlight"})
                 for i in range(2):
-                    clasi = trClasi[i].get_text(separator="/").split("/")[1:8]
+                    clasi = trClasi[i].get_text(separator="/").split("/")[0:7]
                     length = len(clasification)
                     if clasi[0] == match.names['home'] and i != 0:
-                        del clasi[0]
+                        del clasi[1]
                         clasification.insert(length-1, util.normalizeData(clasi))
                     else:
-                        del clasi[0]
-                        clasification.append(util.normalizeData(clasi))  
-            
+                        del clasi[1]
+                        clasification.append(util.normalizeData(clasi)) 
+                        
             match.setClasification(clasification[0:2], clasification[2:4], clasification[4:6])
         except:
             print("NO CLASIFICATION")
@@ -223,8 +223,7 @@ class Scrapper():
                     del h2hValues[2]
                     mMutual.append(h2hValues)
                 h2h.append(mMutual)
-            s
-            print(h2h)
+                
             match.setH2h(h2h)
             match.setNamesMatch(names)
         except:
@@ -294,15 +293,28 @@ class Scrapper():
                     del split[0] 
                     del split[len(split)-1]
                     if len(split) == 3:
-                        leagues[sport["name"]][split[2]] = {"path": href, "data-mt": mt}
+                        leagues[sport["name"]][split[2]] = {
+                                "path": href, 
+                                "data-mt": mt,
+                                "matchs": {}}
         return leagues
     
-    def getHistorical(self, league):
+    def _getIdYearHistorical(self, path, year):
+        url = self.__url_id_year_historical.format(path[1:-1], year)
+        website_url = requests.get(url, headers=self.__header).text
+        soup = BeautifulSoup(website_url,"html.parser")
+        
+        id_year = soup.find("div",{"id":"tournament-page-season-results"})
+        
+        return id_year.text
+    
+    def getHistorical(self, league, year):
+        id_year = self._getIdYearHistorical(league["path"], year)
         historical = {}
         try:
             for i in range(50):
                 print("PAGE: ", i)
-                url = self.__url_historical.format(league["data-mt"], str(i))
+                url = self.__url_historical.format(league["data-mt"], id_year, str(i))
                 website_url = requests.get(url, headers=self.__header).text
                 soup = BeautifulSoup(website_url,"html.parser")
 

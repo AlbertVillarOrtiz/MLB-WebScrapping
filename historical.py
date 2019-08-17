@@ -10,10 +10,10 @@ from scrapper import Scrapper
 class Historical():
     
     def __init__(self):
-        self._historical = self._readHistorical()
+        self.historical = self.readHistorical()
         self._index_sports = self._readIndexSports()
     
-    def _readHistorical(self):
+    def readHistorical(self):
         data = json.load(open('historical.json'))
             
         return data
@@ -24,13 +24,13 @@ class Historical():
         return data
     
     def _writeHistorical(self):
-        json.dump(self._historical, open('historical.json', 'w'), sort_keys=True, indent=4)
+        json.dump(self.historical, open('historical.json', 'w'), sort_keys=True, indent=4)
     
     def _writeIndexSports(self):
         json.dump(self._index_sports, open('index_sports.json', 'w'), sort_keys=True, indent=4)
         
     def _defineHistorical(self, league_historical):
-        self._historical = league_historical
+        self.historical = league_historical
     
     def _defineIndexSports(self, leagues):
         self._index_sports = leagues
@@ -45,14 +45,14 @@ class Historical():
         
         self._writeIndexSports()
         
-    def runHistorical(self):
-        index_sports = self._readIndexSports()
+    def runHistorical(self, year):
         scrapper = Scrapper()
         
-        for sport in index_sports.keys():
+        for sport in self.historical.keys():
             league = "mlb"
 #            for league in index_sports[sport].keys():
-            index_sports[sport][league]["matchs"] = scrapper.getHistorical(index_sports[sport][league])
-            self._defineHistorical(index_sports)
+            self.historical[sport][league]["matchs"][year] = scrapper.getHistorical(self.historical[sport][league], year)
+            self._defineHistorical(self.historical)
             
             self._writeHistorical()
+            

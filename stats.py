@@ -21,24 +21,34 @@ Se visualizara por:
     - Liga
     - Deporte
 """
+import pandas as pd
+
 class Stats():
     
     def __init__(self):
         pass
     
-    def byMatch(self, sport, league):
-        pass
+    def byMatch(self, threshold, sport, league, year, prediction, probability, result):
+        headers = ['Sport', 'League', "Threshold", 'Year', "Prediction", "Probability", "Result"]
+        data = pd.read_csv("stats.csv") 
+        df = pd.DataFrame(data, columns= headers)
+        
+        df = df.append([sport, league, threshold, year, prediction, probability, result])
+        df.to_csv ('stats.csv', index = None, header=True)
     
     def byMonth(self, sport, league):
         pass
     
-    def byYear(self, sport, league):
+    def byYear(self, threshold, sport, league, year, result):
+        headers = ['Sport', 'League', "Threshold", 'Year', "Result"]
         pass
     
-    def byLeague(self, sport, league):
+    def byLeague(self, threshold, sport, league, result):
+        headers = ['Sport', 'League', "Threshold", "Result"]
         pass
     
-    def bySport(self, sport):
+    def bySport(self, threshold, sport, result):
+        headers = ['Sport', "Threshold", "Result"]
         pass
     
     

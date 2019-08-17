@@ -33,7 +33,7 @@ def normalizeData(data):
             for j in range(len(result)):
                 data.insert(i+j, result[j])
         data[i] = float(data[i])
-
+    
     return data
 
 def normalizeH2hData(data):

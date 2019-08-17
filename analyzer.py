@@ -6,6 +6,7 @@ Created on Sun Aug 11 17:33:53 2019
 """
 import statistics
 from telegram import Telegram
+from stats import Stats
 
 class Analyzer():
     
@@ -13,24 +14,40 @@ class Analyzer():
         self.win = []
         self.totalsMean = []
         self.telegram = Telegram()
+        self.stats = Stats()
     
     def isTimeToBetting(self, threshold, match):
         winner = self.winner[1][0] > threshold
-        totalsMean = len(self.totalsMean) != 0
+#        totalsMean = len(self.totalsMean) != 0
         
         if winner:
             print(match.names['home'], " - " , match.names['away'], " -> ", self.win)
+            return self.win
 #            self.telegram.sendMessage(sport, msg)
-            
-        if totalsMean:
-            print(match.names['home'], " - " , match.names['away'], " -> ", self.totalsMean)
+#        if totalsMean:
+#            print(match.names['home'], " - " , match.names['away'], " -> ", self.totalsMean)
 #            self.telegram.sendMessage(sport, msg)
     
+    def isTimeToBettingHistorical(self, threshold, sport, league, year, results):
+        if self.winner[1][0] > threshold:
+            print("IS TIME TO BETTING")
+            cond_home = self.winner[0] == "home" and results["home"] > results["away"]
+            cond_away = self.winner[0] == "away" and results["home"] < results["away"]
+            
+            if cond_home or cond_away:
+                print("MONEY IS IN THE BANK")
+                self.stats.byMatch(threshold, sport, league, year, self.winner[0], self.winner[1][0], 1)
+            else :
+                print("MONEY IS RUNNING OUT")
+                self.stats.byMatch(threshold, sport, league, year, self.winner[0], self.winner[1][0], 0)
+        else:
+            print("NO BET")
+        
     def winner(self, prob):
-        winnerH = [prob.clasiOverall["win"]['home'], prob.clasiHome["win"]['home'], 
+        winnerH = [prob.clasification["win"]['home'], prob.clasification["win"]['home'], 
                    prob.h2hOverall["win"]['home'], prob.h2hOverall["win"]['mutual']['home'], 
                    prob.h2hHome["win"]['home'], prob.h2hHome["win"]['mutual']['home']]
-        winnerA = [prob.clasiOverall["win"]['away'], prob.clasiAway["win"]['away'], 
+        winnerA = [prob.clasification["win"]['away'], prob.clasification["win"]['away'], 
                    prob.h2hOverall["win"]['away'],prob.h2hOverall["win"]['mutual']['away'], 
                    prob.h2hAway["win"]['away'], prob.h2hHome["win"]['mutual']['away']]
         
@@ -45,10 +62,10 @@ class Analyzer():
     def totalsMean(self, prob):
         keys = prob.ou.keys()
         
-        total = [prob.clasiOverall["totals_mean"]['home'], prob.clasiHome["totals_mean"]['home'], 
+        total = [prob.clasification["totals_mean"]['home'], prob.clasification["totals_mean"]['home'], 
                  prob.h2hOverall["totals_mean"]['home'], prob.h2hOverall["totals_mean"]['mutual']['home'], 
                  prob.h2hHome["totals_mean"]['home'], prob.h2hHome["totals_mean"]['mutual']['home'], 
-                 prob.clasiOverall["totals_mean"]['away'], prob.clasiAway["totals_mean"]['away'], 
+                 prob.clasification["totals_mean"]['away'], prob.clasification["totals_mean"]['away'], 
                  prob.h2hOverall["totals_mean"]['away'],prob.h2hOverall["totals_mean"]['mutual']['away'], 
                  prob.h2hAway["totals_mean"]['away'], prob.h2hHome["totals_mean"]['mutual']['away']]
         
