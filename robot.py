@@ -45,7 +45,7 @@ class Robot():
     def getAnalysis(self, probabilities):
         analyzer = Analyzer()
         analyzer.winner(probabilities)
-        analyzer.totalsMean(probabilities)
+#        analyzer.totalsMean(probabilities)
         
         return analyzer
     
@@ -81,15 +81,15 @@ class Robot():
             for year in ["2018"]:
                 i = 0
                 for id_match in id_matchs_by_year[year].keys():
+                    
                     print(sport, "mlb", year, id_match, i, len(id_matchs_by_year[year].keys()))
                     match = self.getMatch(scrapper, id_match, league)
                     probabilities = self.getProbabilities(match)
-                    print("IS Probability: ", probabilities.isAllCorrect())
                     if probabilities.isAllCorrect():
-                        print("INIT ANALYZER")
+                        
                         analyzer = self.getAnalysis(probabilities)
-                        print(analyzer.winner)
-                        analyzer.isTimeToBettingHistorical(self.threshold, sport, league["name"], year, id_matchs_by_year[year][id_match])
+                        analyzer.isTimeToBettingHistorical(sport, league["name"], year, id_match, id_matchs_by_year[year][id_match])
+                    
                     i = i + 1
 
 

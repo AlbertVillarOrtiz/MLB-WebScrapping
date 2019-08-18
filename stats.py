@@ -28,13 +28,8 @@ class Stats():
     def __init__(self):
         pass
     
-    def byMatch(self, threshold, sport, league, year, prediction, probability, result):
-        headers = ['Sport', 'League', "Threshold", 'Year', "Prediction", "Probability", "Result"]
-        data = pd.read_csv("stats.csv") 
-        df = pd.DataFrame(data, columns= headers)
-        
-        df = df.append([sport, league, threshold, year, prediction, probability, result])
-        df.to_csv ('stats.csv', index = None, header=True)
+    def byMatch(self, threshold, sport, league, year, prediction, probability, id_match, result):
+        pass
     
     def byMonth(self, sport, league):
         pass

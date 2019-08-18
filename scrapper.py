@@ -7,6 +7,7 @@ Created on Sat Aug 10 21:12:43 2019
 from bs4 import BeautifulSoup
 import requests
 import re
+import time
 import utilities as util
 
 class Scrapper():
@@ -26,6 +27,7 @@ class Scrapper():
         self.__situations = ['overall', 'home', 'away']
     
     def _soupSport(self):
+        time.sleep(2)
         website_url = requests.get(self.__url_sport, headers=self.__header).text
         soup = BeautifulSoup(website_url,"html.parser")
         
@@ -63,6 +65,7 @@ class Scrapper():
         return sports
     
     def _soupLeague(self, id_sport):
+        time.sleep(2)
         url = self.__url_league.format(id_sport)
         website_url = requests.get(url, headers=self.__header).text
         soup = BeautifulSoup(website_url,"html.parser")
@@ -101,6 +104,7 @@ class Scrapper():
         return [{'name': 'usa/mlb/', 'id1': 'Uanezsbs', 'id2': 'GMHpTqQb'}]
     
     def _soupIdsMatch(self, sport, league):
+        time.sleep(2)
         url = self.__url_match.format(sport, league)
         website_url = requests.get(url).text
         soup = BeautifulSoup(website_url,"html.parser")
@@ -124,6 +128,7 @@ class Scrapper():
             return ids
     
     def _soupIdsTeam(self, id_match):
+        time.sleep(2)
         url = self.__url_team.format(id_match)
         website_url = requests.get(url, headers=self.__header).text
         soup = BeautifulSoup(website_url,"html.parser").text
@@ -147,6 +152,7 @@ class Scrapper():
         return teams
     
     def _soupClasification(self, situation, id_match, id_home, id_away, league):
+        time.sleep(2)
         url = self.__url_clasification.format(league["id1"], league["id2"], situation, id_match, id_home, id_away)
         website_url = requests.get(url, headers=self.__header).text
         soup = BeautifulSoup(website_url,"html.parser")
@@ -177,6 +183,7 @@ class Scrapper():
             return match
     
     def _soupH2h(self, id_match):
+        time.sleep(2)
         url = self.__url_h2h.format(id_match)
         website_url = requests.get(url, headers=self.__header).text
         soup = BeautifulSoup(website_url,"html.parser")
@@ -232,6 +239,7 @@ class Scrapper():
             return match
 
     def _soupOdd(self, id_match):
+        time.sleep(2)
         url = self.__url_odd.format(id_match)
         website_url = requests.get(url, headers=self.__header).text
         soup = BeautifulSoup(website_url,"html.parser")
@@ -274,6 +282,7 @@ class Scrapper():
             return match
     
     def getAllLeaguesByCountry(self, sport):
+        time.sleep(2)
         url = self.__url_country_leagues.format(sport["name"])
         website_url = requests.get(url, headers=self.__header).text
         soup = BeautifulSoup(website_url,"html.parser")
@@ -300,6 +309,7 @@ class Scrapper():
         return leagues
     
     def _getIdYearHistorical(self, path, year):
+        time.sleep(2)
         url = self.__url_id_year_historical.format(path[1:-1], year)
         website_url = requests.get(url, headers=self.__header).text
         soup = BeautifulSoup(website_url,"html.parser")
