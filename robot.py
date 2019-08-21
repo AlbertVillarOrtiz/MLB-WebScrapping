@@ -78,9 +78,9 @@ class Robot():
             id_matchs_by_year = index_sports[sport]["mlb"]["matchs"]
             league =  {'name': 'usa/mlb/', 'id1': 'Uanezsbs', 'id2': 'GMHpTqQb'}
             
-            for year in ["2017"]:
-                i = 0
-                iterator = list(id_matchs_by_year[year].keys())[339:]
+            for year in ["2016"]:
+                i = 2343
+                iterator = list(id_matchs_by_year[year].keys())[i:]
                 for id_match in iterator:
                     
                     print(sport, "mlb", year, id_match, i, len(id_matchs_by_year[year].keys()))
