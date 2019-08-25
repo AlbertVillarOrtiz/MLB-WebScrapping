@@ -80,7 +80,7 @@ class Robot():
             
             for year in ["2017"]:
                 i = 0
-                iterator = list(id_matchs_by_year[year].keys())[339:]
+                iterator = list(id_matchs_by_year[year].keys())[436:]
                 for id_match in iterator:
                     
                     print(sport, "mlb", year, id_match, i, len(id_matchs_by_year[year].keys()))
