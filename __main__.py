@@ -10,7 +10,7 @@ from robot import Robot
 if __name__ == '__main__':
     robot = Robot()
 #    historical = Historical()
-     
+
     robot.runHistorical()
 #    for year in [2018, 2017, 2016, 2015, 2014]:
 #    historical.runHistorical(str(2014)) 

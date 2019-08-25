@@ -18,7 +18,7 @@ class Analyzer():
         self.stats = Stats()
     
     def isTimeToBetting(self, threshold, match):
-        winner = self.winner[1][0] > threshold
+        winner = self.win[1][0] > threshold
         
         if winner:
             print(match.names['home'], " - " , match.names['away'], " -> ", self.win)
