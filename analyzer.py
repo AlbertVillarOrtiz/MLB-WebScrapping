@@ -16,11 +16,20 @@ class Analyzer():
         self.totalsMean = []
         self.telegram = Telegram()
         self.stats = Stats()
+        self.threshold_perc = 70
+        self.threshold_odd = 1.6
+        self.diff_prob = 0.05
+        self.diff_odd = 0.9
     
     def isTimeToBetting(self, threshold, match):
-        winner = self.win[1][0] > threshold
+        threshold_perc_okey = self.win[1][0] >= self.threshold_perc
+        odd1 = 1/self.win[1][1] if self.win[1][1] != 0 else 0
+        odd2 = 1/self.win[1][3] if self.win[1][3] != 0 else 0
+        threshold_odd_okey = odd1 >= self.threshold_odd
+        diff_prob_okey = (self.win[1][0] - self.win[1][2]) >= self.diff_prob
+        diff_odd_okey = (odd1 - odd2) >= self.diff_odd
         
-        if winner:
+        if threshold_perc_okey and threshold_odd_okey and diff_prob_okey and diff_odd_okey:
             print(match.names['home'], " - " , match.names['away'], " -> ", self.win)
             return self.win
 

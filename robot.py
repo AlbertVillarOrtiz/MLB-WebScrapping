@@ -79,7 +79,7 @@ class Robot():
             league =  {'name': 'usa/mlb/', 'id1': 'Uanezsbs', 'id2': 'GMHpTqQb'}
             
             for year in ["2017"]:
-                i = 0
+                i = 2281
                 iterator = list(id_matchs_by_year[year].keys())[i:]
                 for id_match in iterator:
                     
