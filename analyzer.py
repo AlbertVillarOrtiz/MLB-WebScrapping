@@ -29,8 +29,14 @@ class Analyzer():
         diff_prob_okey = (self.win[1][0] - self.win[1][2]) >= self.diff_prob
         diff_odd_okey = (odd1 - odd2) >= self.diff_odd
         
+        print(match.names['home'], " - " , match.names['away'])
+        print(self.win[1][0],"/",self.threshold_perc, threshold_perc_okey)
+        print(odd1,"/",self.threshold_odd, threshold_odd_okey)
+        print((self.win[1][0] - self.win[1][2]),"/",self.diff_prob, diff_prob_okey)
+        print((odd1 - odd2),"/",self.diff_odd, diff_odd_okey)
+        
         if threshold_perc_okey and threshold_odd_okey and diff_prob_okey and diff_odd_okey:
-            print(match.names['home'], " - " , match.names['away'], " -> ", self.win)
+            #print(match.names['home'], " - " , match.names['away'], " -> ", self.win)
             return self.win
 
     def isTimeToBettingHistorical(self, sport, league, year, id_match, results):

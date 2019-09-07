@@ -163,11 +163,24 @@ def getMaxCombination():
     max_combination_ben_loss = data.loc[data[headers[11]].idxmax()]
     min_combination_loss = data.loc[data[headers[9]].idxmax()]
     max_combination_win = data.loc[data[headers[10]].idxmax()]
+    max_combination_perc = data.loc[data[headers[6]].idxmax()]
     
     print("Combinacion max beneficios: ", max_combination_benefits)
     print("Combinacion max beneficios min loss: ", max_combination_ben_loss)
     print("Combinacion max wins: ", max_combination_win)
     print("Combinacion min loss: ", min_combination_loss)
+    print("Combinacion max perc: ", max_combination_perc)
+
+def  visualizeResultsManual():
+    data = readDataMlb("analyzed_data_mlb.csv")
+    headers = list(data.columns)
+    
+    over65 = data.loc[data[headers[1]] == 70]
+    sorted_array = over65.sort_values(by=[headers[6]], ascending = False)
+    
+    print(sorted_array.loc[:, [headers[5], headers[6],headers[8], headers[9], headers[10], headers[11]]][50:100])
+    print(sorted_array.loc[5379])
 
 #visualizeHistorical()
-getMaxCombination()
+#getMaxCombination()
+visualizeResultsManual()

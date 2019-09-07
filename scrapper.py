@@ -45,6 +45,7 @@ class Scrapper():
             sports.append({"name": sport_name, "id": sport_id})
         
         sports = [{"name": "beisbol", "id": 6}]
+#        sports = [{'name': 'baloncesto', 'id': '3'}];
 #sports = [{'name': 'badminton', 'id': '21'}, {'name': 'baloncesto', 'id': '3'}, 
 #{'name': 'balonmano', 'id': '7'}, {'name': 'bandy', 'id': '10'}, 
 #{'name': 'beisbol', 'id': '6'}, {'name': 'boxeo', 'id': '16'}, 
@@ -166,9 +167,18 @@ class Scrapper():
         try:
             for situation in self.__situations:
                 soup = self._soupClasification(situation, match.id, match.id_teams['home'], match.id_teams['away'], league)
-                trClasi = soup.find_all("tr", {"class": "highlight"})
+                soupClasi = soup.find_all("tr", {"class": "highlight"})
+                soupClasi2 = soup.find_all("div", {"class": "highlight"})
+                cond = len(soupClasi) != 0
+                soupFinal = soupClasi if cond else soupClasi2
+                print(soupFinal)
+
                 for i in range(2):
-                    clasi = trClasi[i].get_text(separator="/").split("/")[0:7]
+                    if not cond:
+                        data = soupFinal[i].find_all("div", {"class": "table__cell"})
+                    clasi = data[i].get_text(separator="/").split("/")[0:7]
+                    print("CLASI: \n")
+                    print(clasi)
                     length = len(clasification)
                     if clasi[0] == match.names['home'] and i != 0:
                         del clasi[1]
